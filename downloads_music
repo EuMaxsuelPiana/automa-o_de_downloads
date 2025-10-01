@@ -1,0 +1,50 @@
+import time
+import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
+navegador = webdriver.Firefox()  # ou webdriver.Firefox()
+tema = "músicas dos anos 80" 
+n_abas = 5
+arquivo_tabela = 'musicas_baixadas.csv'
+
+def buscar_musicas(tema, n_abas):
+    músicas = []
+    for i in range(n_abas):
+        busca = f"{tema} {i+1}"
+        navegador.get(f"https://www.youtube.com/results?search_query={busca}")
+        time.sleep(2)
+        título = navegador.find_element(By.XPATH, '//*[@id="video-title"]').text
+        link = navegador.find_element(By.XPATH, '//*[@id="video-title"]').get_attribute('href')
+        músicas.append((título, link))
+    return músicas
+
+def converter_musicas(músicas):
+    for título, link in músicas:
+        navegador.get(link)
+        time.sleep(2)
+        navegador.find_element(By.TAG_NAME, 'body').send_keys(Keys.COMMAND + 't')
+        navegador.switch_to.window(navegador.window_handles[-1])
+        navegador.get('https://ytmp3.as/AOPR/')
+        time.sleep(2)
+        input_element = navegador.find_element(By.ID, 'input')
+        input_element.send_keys(link)
+        input_element.send_keys(Keys.RETURN)
+        time.sleep(10)
+        navegador.close()
+        navegador.switch_to.window(navegador.window_handles[0])
+
+try:
+    tabela = pd.read_csv(arquivo_tabela)
+except FileNotFoundError:
+    tabela = pd.DataFrame(columns=['Título', 'Link'])
+
+músicas = buscar_musicas(tema, n_abas)
+converter_musicas(músicas)
+
+novas_músicas = pd.DataFrame(músicas, columns=['Título', 'Link'])
+tabela = pd.concat([tabela, novas_músicas]).drop_duplicates().reset_index(drop=True)
+tabela.to_csv(arquivo_tabela, index=False)
+
+navegador.quit()
