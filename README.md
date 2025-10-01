@@ -17,7 +17,7 @@ Além disso, o script mantém um **histórico em CSV** das músicas já processa
 
 ---
 
-## 📂 Estrutura do Projeto
+## Estrutura do Projeto
 
 automa-o_de_downloads
  ┣ 📜 automacao_download.py   # Script principal
@@ -25,4 +25,4 @@ automa-o_de_downloads
  ┗ 📜 README.md               # Documentação do projeto
 
  git clone https://github.com/EuMaxsuelPiana/automa-o_de_downloads.git
-cd automa-o_de_downloads
+cd downloads_music
